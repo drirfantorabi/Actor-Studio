@@ -1,10 +1,14 @@
 import React, { useEffect } from 'react';
 import { useAudio } from '../hooks/useAudio';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Play, ArrowRight, RefreshCw, Mic } from 'lucide-react';
 
 interface DialogueProps {
   id: number;
   speaker: string;
   audio: string;
+  content?: string;
 }
 
 interface DialogueCardProps {
@@ -48,140 +52,148 @@ const DialogueCard: React.FC<DialogueCardProps> = ({
   }, [isPlaying, currentDialogue, isUserTurn, play, setIsPlaying, onNext]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md flex-grow flex flex-col mb-6 overflow-hidden">
+    <Card className="flex-grow flex flex-col mb-6 overflow-hidden">
       {/* Current dialogue header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
+      <CardHeader className="bg-primary text-white py-4 px-6 flex-row justify-between items-center space-y-0">
         <div>
           <h3 className="text-lg font-medium">Now Speaking</h3>
           <p className="text-white/90 text-sm">Line {currentIndex + 1} of {totalLines}</p>
         </div>
         <div className="flex items-center">
           <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+            <div className="h-6 w-6 text-white">
+              {/* User icon */}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
           </div>
           <span className="ml-2 font-medium">{currentDialogue?.speaker}</span>
         </div>
-      </div>
+      </CardHeader>
       
       {/* Dialogue content area */}
-      <div className="p-6 flex-grow flex flex-col items-center justify-center">
+      <CardContent className="p-6 flex-grow flex flex-col items-center justify-center">
         {isCompleted ? (
           // Completed state
-          <div className="w-full">
+          <div className="w-full text-center">
             <div className="flex justify-center mb-4">
-              <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="text-success text-3xl h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-8 w-8">
+                  <path d="M5 13l4 4L19 7" />
                 </svg>
               </div>
             </div>
             
-            <p className="text-center font-medium text-lg mb-2">
+            <h3 className="text-xl font-medium mb-2">
               Rehearsal Complete!
-            </p>
+            </h3>
             
-            <p className="text-center text-neutral-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Great job practicing your lines
             </p>
             
-            <div className="flex justify-center">
-              <button 
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-success hover:bg-success/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-success"
-                onClick={onRestart}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Restart Rehearsal
-              </button>
-            </div>
+            <Button onClick={onRestart} className="gap-2">
+              <RefreshCw size={16} />
+              Restart Rehearsal
+            </Button>
           </div>
         ) : isUserTurn ? (
           // User's turn
           <div className="w-full">
-            <div className="flex justify-center mb-4">
-              <div className="h-16 w-16 rounded-full bg-secondary/10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="text-secondary text-3xl h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
+            {/* Display content if available */}
+            {currentDialogue?.content && (
+              <div className="mb-6 text-center p-4 border border-dashed rounded-md bg-secondary/5 border-secondary/20">
+                <p className="font-medium text-lg leading-relaxed">{currentDialogue.content}</p>
               </div>
+            )}
+          
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-16 w-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                  <Mic className="h-8 w-8" />
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-medium mb-2">
+                Your Turn!
+              </h3>
+              
+              <p className="text-muted-foreground mb-4">
+                Read your line aloud, then press Next
+              </p>
             </div>
-            
-            <p className="text-center font-medium text-lg mb-2">
-              Your Turn!
-            </p>
-            
-            <p className="text-center text-neutral-600 mb-6">
-              Read your line aloud, then press Next
-            </p>
           </div>
         ) : (
           // Computer's turn
           <div className="w-full">
-            <div className="flex justify-center mb-4">
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="text-primary text-3xl h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </div>
-            </div>
-            
-            <p className="text-center text-neutral-600 mb-6">
-              Listen to {currentDialogue?.speaker}'s line
-            </p>
-            
-            {/* Audio visualizer (appears when audio is playing) */}
-            {isPlaying && (
-              <div className="w-full flex justify-center items-center h-12 mb-6 relative">
-                <div className="audio-playing flex items-end justify-center space-x-1 h-8 w-32">
-                  {/* Audio visualization bars */}
-                  <div className="bg-primary h-3 w-1 rounded-full"></div>
-                  <div className="bg-primary h-5 w-1 rounded-full"></div>
-                  <div className="bg-primary h-8 w-1 rounded-full"></div>
-                  <div className="bg-primary h-4 w-1 rounded-full"></div>
-                  <div className="bg-primary h-6 w-1 rounded-full"></div>
-                  <div className="bg-primary h-3 w-1 rounded-full"></div>
-                  <div className="bg-primary h-7 w-1 rounded-full"></div>
-                </div>
+            {/* Display content if available */}
+            {currentDialogue?.content && (
+              <div className="mb-6 text-center p-4 border rounded-md bg-primary/5 border-primary/20">
+                <p className="font-medium text-lg leading-relaxed">{currentDialogue.content}</p>
               </div>
             )}
+            
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-8 w-8">
+                    <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <p className="text-muted-foreground mb-4">
+                Listen to {currentDialogue?.speaker}'s line
+              </p>
+              
+              {/* Audio visualizer (appears when audio is playing) */}
+              {isPlaying && (
+                <div className="flex justify-center items-center h-12 mb-2">
+                  <div className="audio-playing flex items-end justify-center space-x-1 h-8 w-32">
+                    {[3, 5, 8, 4, 6, 3, 7].map((height, i) => (
+                      <div 
+                        key={i} 
+                        className="bg-primary w-1 rounded-full animate-pulse"
+                        style={{ height: `${height * 4}px` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
-      </div>
+      </CardContent>
       
       {/* Action buttons */}
       {!isCompleted && (
-        <div className="p-4 border-t border-neutral-200 flex justify-between">
+        <CardFooter className="flex justify-between border-t p-4">
           {/* Play button */}
-          <button
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          <Button
+            variant="default"
             onClick={onPlay}
             disabled={isPlaying || isUserTurn}
+            className="gap-2"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Play
-          </button>
+            <Play size={16} />
+            Play Audio
+          </Button>
           
           {/* Next button (conditionally shown) */}
           {isUserTurn && (
-            <button
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-secondary hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary transition-colors"
+            <Button
+              variant="secondary"
               onClick={onNext}
+              className="gap-2"
             >
               Next
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+              <ArrowRight size={16} />
+            </Button>
           )}
-        </div>
+        </CardFooter>
       )}
-    </div>
+    </Card>
   );
 };
 
