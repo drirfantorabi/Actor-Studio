@@ -20,8 +20,9 @@ import {
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Character, Dialogue, Script } from '@shared/schema';
-import CharacterForm from '@/components/CharacterForm';
-import DialogueForm from '@/components/DialogueForm';
+import CharacterForm from '../components/CharacterForm';
+import DialogueForm from '../components/DialogueForm';
+import EditDialogueForm from '../components/EditDialogueForm';
 import { ArrowLeft, UserPlus, MessageCirclePlus, Play, Clock } from 'lucide-react';
 
 const ScriptDetail: React.FC = () => {
@@ -31,6 +32,8 @@ const ScriptDetail: React.FC = () => {
   
   const [isAddingCharacter, setIsAddingCharacter] = useState(false);
   const [isAddingDialogue, setIsAddingDialogue] = useState(false);
+  const [editDialogueOpen, setEditDialogueOpen] = useState(false);
+  const [selectedDialogue, setSelectedDialogue] = useState<Dialogue & { character: Character } | null>(null);
   
   const scriptId = params?.id ? parseInt(params.id) : undefined;
   
@@ -279,16 +282,34 @@ const ScriptDetail: React.FC = () => {
                           <span>{dialogue.character.name}</span>
                         </CardTitle>
                       </div>
-                      {dialogue.audioPath && (
-                        <div className="flex items-center text-xs text-muted-foreground gap-1">
-                          <Clock size={12} />
-                          <span>Has Audio</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-3">
+                        {dialogue.audioPath && (
+                          <div className="flex items-center text-xs text-muted-foreground gap-1">
+                            <Clock size={12} />
+                            <span>Has Audio</span>
+                          </div>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 px-2"
+                          onClick={() => {
+                            setSelectedDialogue(dialogue);
+                            setEditDialogueOpen(true);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-md leading-relaxed">{dialogue.content}</p>
+                    {dialogue.audioPath && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Audio: {dialogue.audioPath}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -296,6 +317,15 @@ const ScriptDetail: React.FC = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Edit Dialogue Dialog */}
+      {selectedDialogue && (
+        <EditDialogueForm
+          dialogue={selectedDialogue}
+          open={editDialogueOpen}
+          onOpenChange={setEditDialogueOpen}
+        />
+      )}
     </div>
   );
 };

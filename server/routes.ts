@@ -228,6 +228,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update a dialogue line
+  app.patch('/api/dialogues/:id', async (req, res) => {
+    try {
+      const dialogueId = parseInt(req.params.id);
+      if (isNaN(dialogueId)) {
+        return res.status(400).json({ error: 'Invalid dialogue ID' });
+      }
+
+      // Check if dialogue exists
+      const existingDialogue = await db.query.dialogues.findFirst({
+        where: eq(dialogues.id, dialogueId)
+      });
+
+      if (!existingDialogue) {
+        return res.status(404).json({ error: 'Dialogue not found' });
+      }
+
+      // Update the dialogue
+      const [updatedDialogue] = await db.update(dialogues)
+        .set({
+          content: req.body.content || existingDialogue.content,
+          audioPath: req.body.audioPath !== undefined ? req.body.audioPath : existingDialogue.audioPath
+        })
+        .where(eq(dialogues.id, dialogueId))
+        .returning();
+      
+      return res.status(200).json(updatedDialogue);
+    } catch (error) {
+      console.error('Error updating dialogue:', error);
+      return res.status(500).json({ error: 'Failed to update dialogue' });
+    }
+  });
+
   // Handle audio file uploads
   app.post('/api/upload-audio', async (req, res) => {
     try {
